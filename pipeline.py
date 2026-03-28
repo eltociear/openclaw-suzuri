@@ -4,11 +4,13 @@ OpenClaw: ロブスターを被った猫のデザインを自動生成し、
 SUZURIに全アイテム公開状態でアップロードする。
 人間の操作は一切不要（トークン設定後）。
 """
+from __future__ import annotations
+import functools
 import logging
 import time
 from datetime import datetime
 
-from config import TRIBUN, ITEM_SIZES, RETRY_MAX, RETRY_DELAY_SEC
+from config import TRIBUN, ITEM_SIZES, SUZURI_ITEM_IDS, RETRY_MAX, RETRY_DELAY_SEC
 from image_generator import ImageGenerator
 from suzuri_client import SuzuriClient
 from prompts import build_prompt, random_prompt
@@ -21,13 +23,13 @@ logger = logging.getLogger(__name__)
 
 
 def run_pipeline(
-    situation: str = None,
-    style_index: int = None,
-    item_types: list[str] = None,
-    name: str = None,
+    situation: str | None = None,
+    style_index: int | None = None,
+    item_types: list[str] | None = None,
+    name: str | None = None,
     upload: bool = True,
 ):
-    """デザイン生成 → リサイズ → SUZURI全商品公開 の完全自動処理
+    """デザイン生成 → SUZURI全商品公開 の完全自動処理
 
     Args:
         situation: シチュエーション（Noneならランダム）
@@ -57,28 +59,28 @@ def run_pipeline(
     # 2. 画像生成（リトライ付き）
     generator = ImageGenerator()
     saved_files = _retry(
-        lambda: generator.generate_and_save(prompt, item_types, name),
+        functools.partial(generator.generate_and_save, prompt, item_types, name),
         "Image generation",
     )
 
     # 3. DB保存
-    base_path = saved_files.get(item_types[0], "")
+    base_path = list(saved_files.values())[0]
     design_id = save_design(name, prompt, base_path)
 
-    for item_type, path in saved_files.items():
+    for item_type in item_types:
         tribun = TRIBUN.get(item_type, 300)
-        save_product(design_id, item_type, path, tribun)
+        save_product(design_id, item_type, saved_files[item_type], tribun)
 
     logger.info(f"Design saved: id={design_id}")
 
     # 4. SUZURIアップロード — 全アイテムを公開状態で一括作成
     if upload:
-        main_image = saved_files.get("tshirt", list(saved_files.values())[0])
         client = SuzuriClient()
 
         material = _retry(
-            lambda: client.create_material_with_all_products(
-                image_path=main_image,
+            functools.partial(
+                client.create_material_with_all_products,
+                image_path=base_path,
                 title=f"OpenClaw - {situation}",
                 description=(
                     f"OpenClaw: Lobster Cat - {situation}.\n"
@@ -91,8 +93,17 @@ def run_pipeline(
         )
 
         update_design_material_id(design_id, material["id"])
+
+        # 返却されたproductsから各アイテムの実際のproduct IDを取得
+        suzuri_products = {}
+        for p in material.get("products", []):
+            item = p.get("item", {})
+            suzuri_products[item.get("id")] = p.get("id")
+
         for item_type in item_types:
-            update_product_published(design_id, item_type, material["id"])
+            item_id = SUZURI_ITEM_IDS.get(item_type)
+            product_id = suzuri_products.get(item_id)
+            update_product_published(design_id, item_type, product_id)
 
         logger.info(f"SUZURI published: material_id={material['id']}, items={len(item_types)}")
 

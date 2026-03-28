@@ -7,9 +7,8 @@ crontab例:
   0 9 * * * cd /path/to/openclaw-suzuri && /usr/bin/python3 autorun.py >> openclaw.log 2>&1
 """
 import logging
-import os
-import sys
 import random
+import sys
 import time
 from datetime import datetime
 from pathlib import Path
@@ -17,18 +16,8 @@ from pathlib import Path
 # プロジェクトルートをパスに追加
 sys.path.insert(0, str(Path(__file__).parent))
 
-from config import DAILY_DESIGNS, SUZURI_TOKEN, HF_TOKEN
+from config import DAILY_DESIGNS, SUZURI_TOKEN, HF_TOKEN, ITEM_SETS
 from pipeline import run_pipeline
-from prompts import SITUATIONS
-
-# .envファイルがあれば読み込む（python-dotenvなしでも動く簡易版）
-env_path = Path(__file__).parent / ".env"
-if env_path.exists():
-    for line in env_path.read_text().splitlines():
-        line = line.strip()
-        if line and not line.startswith("#") and "=" in line:
-            key, val = line.split("=", 1)
-            os.environ.setdefault(key.strip(), val.strip())
 
 logging.basicConfig(
     level=logging.INFO,
@@ -40,24 +29,14 @@ logging.basicConfig(
 )
 logger = logging.getLogger("openclaw.autorun")
 
-# アイテムセット（ローテーション）
-ITEM_SETS = [
-    ["tshirt", "sticker", "tote_bag"],
-    ["tshirt", "mug", "phone_case"],
-    ["hoodie", "sticker", "tote_bag"],
-    ["tshirt", "hoodie", "mug"],
-    ["tshirt", "sticker", "mug", "phone_case"],
-    ["hoodie", "tote_bag", "phone_case"],
-]
-
 
 def preflight_check() -> bool:
     """実行前チェック"""
     ok = True
-    if not os.environ.get("SUZURI_TOKEN") and not SUZURI_TOKEN:
+    if not SUZURI_TOKEN:
         logger.error("SUZURI_TOKEN is not set")
         ok = False
-    if not os.environ.get("HF_TOKEN") and not HF_TOKEN:
+    if not HF_TOKEN:
         logger.error("HF_TOKEN is not set")
         ok = False
     return ok
@@ -83,9 +62,8 @@ def main():
             logger.info(f"[{i+1}/{DAILY_DESIGNS}] Generating... (items: {', '.join(item_types)})")
 
             design_id = run_pipeline(
-                situation=None,  # ランダム
                 item_types=item_types,
-                upload=True,     # 自動でSUZURIに公開
+                upload=True,
             )
 
             success += 1

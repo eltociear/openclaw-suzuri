@@ -1,7 +1,7 @@
 """Hugging Face Inference APIによる画像生成"""
-import io
+from __future__ import annotations
+import logging
 import os
-import time
 from datetime import datetime
 
 from huggingface_hub import InferenceClient
@@ -9,15 +9,17 @@ from PIL import Image
 
 from config import HF_TOKEN, HF_MODEL, OUTPUT_DIR, ITEM_SIZES
 
+logger = logging.getLogger(__name__)
+
 
 class ImageGenerator:
-    def __init__(self, token: str = None, model: str = None):
+    def __init__(self, token: str | None = None, model: str | None = None):
         self.client = InferenceClient(
             model=model or HF_MODEL,
             token=token or HF_TOKEN,
         )
 
-    def generate(self, prompt: str, negative_prompt: str = None) -> Image.Image:
+    def generate(self, prompt: str, negative_prompt: str | None = None) -> Image.Image:
         """プロンプトから画像を生成
 
         Args:
@@ -49,6 +51,9 @@ class ImageGenerator:
         Returns:
             リサイズ済みPIL Image (RGBA)
         """
+        if item_type not in ITEM_SIZES:
+            raise ValueError(f"Unknown item_type: {item_type!r}. Valid: {list(ITEM_SIZES)}")
+
         target_w, target_h = ITEM_SIZES[item_type]
 
         # 透過キャンバスを作成
@@ -69,9 +74,12 @@ class ImageGenerator:
         return canvas
 
     def generate_and_save(
-        self, prompt: str, item_types: list[str] = None, name: str = None
+        self, prompt: str, item_types: list[str] | None = None, name: str | None = None
     ) -> dict[str, str]:
-        """画像を生成し、アイテム別にリサイズして保存
+        """画像を生成し、ベース画像を保存
+
+        SUZURIのresizeModeに任せるため、アイテム別リサイズは行わない。
+        ベース画像（1024x1024）をそのままアップロード用に使用する。
 
         Args:
             prompt: 生成プロンプト
@@ -79,7 +87,7 @@ class ImageGenerator:
             name: ファイル名プレフィックス
 
         Returns:
-            {item_type: file_path} の辞書
+            {item_type: file_path} の辞書（全てベース画像を指す）
         """
         if item_types is None:
             item_types = list(ITEM_SIZES.keys())
@@ -90,21 +98,15 @@ class ImageGenerator:
         os.makedirs(OUTPUT_DIR, exist_ok=True)
 
         # 画像生成
-        print(f"Generating image: {prompt[:60]}...")
+        logger.info(f"Generating image: {prompt[:60]}...")
         base_image = self.generate(prompt)
 
-        # 元画像も保存
+        # ベース画像を保存
         base_path = os.path.join(OUTPUT_DIR, f"{name}_base.png")
         base_image.save(base_path)
-        print(f"Base image saved: {base_path}")
+        logger.info(f"Base image saved: {base_path}")
 
-        # アイテム別にリサイズ・保存
-        saved = {}
-        for item_type in item_types:
-            resized = self.resize_for_item(base_image, item_type)
-            path = os.path.join(OUTPUT_DIR, f"{name}_{item_type}.png")
-            resized.save(path, "PNG")
-            saved[item_type] = path
-            print(f"  {item_type}: {ITEM_SIZES[item_type][0]}x{ITEM_SIZES[item_type][1]} -> {path}")
+        # 全アイテムがベース画像を共有（SUZURI側のresizeModeで調整）
+        saved = {item_type: base_path for item_type in item_types}
 
         return saved

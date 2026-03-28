@@ -109,18 +109,14 @@ def random_prompt() -> tuple[str, str, str]:
     """ランダムなプロンプトを生成
 
     Returns:
-        (prompt, situation, template) のタプル
+        (rendered_prompt, situation, raw_template_str) のタプル
+        raw_template_str は再現性のために返却（通常は使用しない）
     """
     situation = random.choice(get_all_situations())
     template = random.choice(TEMPLATES)
     character = f"{OPENCLAW_BASE}, {situation}"
     prompt = template.format(character=character)
     return prompt, situation, template
-
-
-def themed_prompt(theme: str, style_index: int = None) -> str:
-    """指定シチュエーションでプロンプト生成（後方互換）"""
-    return build_prompt(situation=theme, style_index=style_index)
 
 
 # ネガティブプロンプト

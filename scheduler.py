@@ -1,36 +1,17 @@
 """定期実行スケジューラ"""
+from __future__ import annotations
 import random
 import time
 import logging
-from datetime import datetime
 
 from prompts import random_prompt, SITUATIONS
 from pipeline import run_pipeline
-from config import ITEM_SIZES
+from config import DAILY_DESIGNS, ITEM_SETS
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(message)s",
-    handlers=[
-        logging.FileHandler("openclaw.log"),
-        logging.StreamHandler(),
-    ],
-)
 logger = logging.getLogger(__name__)
 
-# 1日あたりのデザイン数
-DAILY_DESIGNS = 3
 
-# アイテムセット（組み合わせを変えて投稿）
-ITEM_SETS = [
-    ["tshirt", "sticker", "tote_bag"],
-    ["tshirt", "mug", "phone_case"],
-    ["hoodie", "sticker", "tote_bag"],
-    ["tshirt", "hoodie", "mug"],
-]
-
-
-def daily_run(count: int = DAILY_DESIGNS, upload: bool = False):
+def daily_run(count: int = DAILY_DESIGNS, upload: bool = True):
     """日次バッチ: ランダムなシチュエーションでOpenClaw猫を生成"""
     logger.info(f"=== Daily run started: {count} designs ===")
 
@@ -47,8 +28,9 @@ def daily_run(count: int = DAILY_DESIGNS, upload: bool = False):
             logger.info(f"[{i+1}/{count}] Done: design_id={design_id}")
 
             if i < count - 1:
-                logger.info("Waiting 30s for rate limit...")
-                time.sleep(30)
+                wait = random.randint(30, 60)
+                logger.info(f"Waiting {wait}s for rate limit...")
+                time.sleep(wait)
 
         except Exception as e:
             logger.error(f"[{i+1}/{count}] Failed: {e}")
@@ -57,7 +39,7 @@ def daily_run(count: int = DAILY_DESIGNS, upload: bool = False):
     logger.info("=== Daily run complete ===")
 
 
-def category_run(category: str = None, upload: bool = False):
+def category_run(category: str | None = None, upload: bool = True):
     """カテゴリ集中生成（例: seasonal, funny, japanese_culture）"""
     if category is None:
         category = random.choice(list(SITUATIONS.keys()))
@@ -90,7 +72,12 @@ def category_run(category: str = None, upload: bool = False):
 if __name__ == "__main__":
     import sys
 
-    upload = "--upload" in sys.argv
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s [%(levelname)s] %(message)s",
+    )
+
+    upload = "--no-upload" not in sys.argv
 
     if "--category" in sys.argv:
         category = None

@@ -1,30 +1,25 @@
 """売上・パフォーマンス分析"""
 import sqlite3
-from collections import defaultdict
-from config import DB_PATH, TRIBUN
+from config import DB_PATH
 
 
 def get_stats() -> dict:
     """全体の統計情報を取得"""
-    conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row
+    with sqlite3.connect(DB_PATH) as conn:
+        conn.row_factory = sqlite3.Row
 
-    total_designs = conn.execute("SELECT COUNT(*) as c FROM designs").fetchone()["c"]
-    total_products = conn.execute("SELECT COUNT(*) as c FROM products").fetchone()["c"]
-    published = conn.execute("SELECT COUNT(*) as c FROM products WHERE published = 1").fetchone()["c"]
+        total_designs = conn.execute("SELECT COUNT(*) as c FROM designs").fetchone()["c"]
+        total_products = conn.execute("SELECT COUNT(*) as c FROM products").fetchone()["c"]
+        published = conn.execute("SELECT COUNT(*) as c FROM products WHERE published = 1").fetchone()["c"]
 
-    # アイテム別集計
-    item_counts = conn.execute(
-        "SELECT item_type, COUNT(*) as c FROM products GROUP BY item_type"
-    ).fetchall()
+        item_counts = conn.execute(
+            "SELECT item_type, COUNT(*) as c FROM products GROUP BY item_type"
+        ).fetchall()
 
-    # 推定トリブン合計（公開済み商品）
-    tribun_rows = conn.execute(
-        "SELECT item_type, tribun FROM products WHERE published = 1"
-    ).fetchall()
-    total_potential_tribun = sum(r["tribun"] for r in tribun_rows)
-
-    conn.close()
+        tribun_rows = conn.execute(
+            "SELECT item_type, tribun FROM products WHERE published = 1"
+        ).fetchall()
+        total_potential_tribun = sum(r["tribun"] for r in tribun_rows)
 
     return {
         "total_designs": total_designs,
@@ -37,16 +32,15 @@ def get_stats() -> dict:
 
 def get_design_history(limit: int = 20) -> list[dict]:
     """デザイン履歴を取得"""
-    conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row
-    rows = conn.execute(
-        "SELECT d.*, COUNT(p.id) as product_count "
-        "FROM designs d LEFT JOIN products p ON d.id = p.design_id "
-        "GROUP BY d.id ORDER BY d.created_at DESC LIMIT ?",
-        (limit,),
-    ).fetchall()
-    conn.close()
-    return [dict(r) for r in rows]
+    with sqlite3.connect(DB_PATH) as conn:
+        conn.row_factory = sqlite3.Row
+        rows = conn.execute(
+            "SELECT d.*, COUNT(p.id) as product_count "
+            "FROM designs d LEFT JOIN products p ON d.id = p.design_id "
+            "GROUP BY d.id ORDER BY d.created_at DESC LIMIT ?",
+            (limit,),
+        ).fetchall()
+        return [dict(r) for r in rows]
 
 
 def print_report():
@@ -60,7 +54,7 @@ def print_report():
     print(f"\nTotal designs:    {stats['total_designs']}")
     print(f"Total products:   {stats['total_products']}")
     print(f"Published:        {stats['published_products']}")
-    print(f"Potential tribun: ¥{stats['total_potential_tribun']:,}")
+    print(f"Potential tribun: {stats['total_potential_tribun']:,}")
 
     if stats["items_by_type"]:
         print("\n--- Items by type ---")
@@ -70,7 +64,7 @@ def print_report():
     if history:
         print("\n--- Recent designs ---")
         for d in history:
-            status = "✓" if d.get("suzuri_material_id") else "-"
+            status = "published" if d.get("suzuri_material_id") else "local"
             print(f"  [{status}] {d['name']} ({d['product_count']} products) - {d['created_at']}")
 
     print("\n" + "=" * 50)

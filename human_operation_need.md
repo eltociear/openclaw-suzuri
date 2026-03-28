@@ -1,8 +1,12 @@
 # 人間の対応が必要な作業（これだけやれば後は全自動）
 
+## 0. APIトークン再発行（緊急）
+- [ ] **Hugging Face トークン再発行**: 旧トークンが期限切れ。https://huggingface.co/settings/tokens で新しいトークンを作成し `.env` を更新
+- [ ] **SUZURI APIトークン再確認**: 必要に応じて再発行し `.env` を更新
+
 ## 1. APIトークン取得（10分）
-- [ ] **SUZURI APIトークン**: https://suzuri.jp/developer/apps でアプリ登録 → アクセストークン取得
-- [ ] **Hugging Face トークン**: https://huggingface.co/settings/tokens で取得（無料）
+- [x] **SUZURI APIトークン**: https://suzuri.jp/developer/apps でアプリ登録 → アクセストークン取得
+- [x] **Hugging Face トークン**: https://huggingface.co/settings/tokens で取得（無料）
 
 ## 2. 設定ファイル作成（1分）
 - [ ] `.env.example` を `.env` にコピーしてトークンを記入

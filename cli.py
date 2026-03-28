@@ -1,5 +1,6 @@
 """OpenClaw CLI — ロブスター猫デザイン自動販売システム"""
 import argparse
+import logging
 import sys
 
 from db import init_db
@@ -12,20 +13,20 @@ def cmd_generate(args):
         situation=args.situation if args.situation else None,
         style_index=args.style,
         item_types=args.items.split(",") if args.items else None,
-        upload=args.upload,
+        upload=not args.no_upload,
     )
 
 
 def cmd_batch(args):
     """バッチ生成（日次）"""
     from scheduler import daily_run
-    daily_run(count=args.count, upload=args.upload)
+    daily_run(count=args.count, upload=not args.no_upload)
 
 
 def cmd_category(args):
     """カテゴリ集中生成"""
     from scheduler import category_run
-    category_run(category=args.category, upload=args.upload)
+    category_run(category=args.category, upload=not args.no_upload)
 
 
 def cmd_stats(args):
@@ -44,15 +45,17 @@ def cmd_items(args):
 
 
 def cmd_upload(args):
-    """既存画像をSUZURIにアップロード"""
+    """既存画像をSUZURIにアップロード（全アイテム公開）"""
     from suzuri_client import SuzuriClient
     client = SuzuriClient()
-    material = client.create_material(
+    material = client.create_material_with_all_products(
         image_path=args.image,
         title=args.title,
-        price=args.price,
     )
     print(f"Material created: id={material['id']}")
+    for p in material.get("products", []):
+        item_name = p.get("item", {}).get("name", "unknown")
+        print(f"  Product: {item_name} (id={p['id']}, published=True)")
 
 
 def cmd_situations(args):
@@ -75,19 +78,19 @@ def main():
     p.add_argument("situation", nargs="?", help="Situation (e.g. 'drinking coffee at a cafe')")
     p.add_argument("--style", type=int, help="Style index 0-9")
     p.add_argument("--items", help="Comma-separated item types (e.g. tshirt,sticker)")
-    p.add_argument("--upload", action="store_true", help="Upload to SUZURI")
+    p.add_argument("--no-upload", action="store_true", help="Skip SUZURI upload")
     p.set_defaults(func=cmd_generate)
 
     # batch
     p = sub.add_parser("batch", help="Daily batch generation")
     p.add_argument("--count", type=int, default=3, help="Number of designs")
-    p.add_argument("--upload", action="store_true", help="Upload to SUZURI")
+    p.add_argument("--no-upload", action="store_true", help="Skip SUZURI upload")
     p.set_defaults(func=cmd_batch)
 
     # category
     p = sub.add_parser("category", help="Category-focused generation")
     p.add_argument("--category", help="Category (daily_life, adventure, seasonal, japanese_culture, funny)")
-    p.add_argument("--upload", action="store_true", help="Upload to SUZURI")
+    p.add_argument("--no-upload", action="store_true", help="Skip SUZURI upload")
     p.set_defaults(func=cmd_category)
 
     # stats
@@ -99,10 +102,9 @@ def main():
     p.set_defaults(func=cmd_items)
 
     # upload
-    p = sub.add_parser("upload", help="Upload existing image to SUZURI")
+    p = sub.add_parser("upload", help="Upload existing image to SUZURI (all items)")
     p.add_argument("image", help="Path to PNG image")
     p.add_argument("--title", required=True, help="Design title")
-    p.add_argument("--price", type=int, default=300, help="Tribun (profit) in yen")
     p.set_defaults(func=cmd_upload)
 
     # situations
@@ -110,10 +112,11 @@ def main():
     p.set_defaults(func=cmd_situations)
 
     args = parser.parse_args()
-    if not args.command:
+    if not args.command or not hasattr(args, "func"):
         parser.print_help()
         sys.exit(1)
 
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
     init_db()
     args.func(args)
 
