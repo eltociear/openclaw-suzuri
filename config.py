@@ -68,7 +68,7 @@ ITEM_SETS = [
 DB_PATH = os.path.join(os.path.dirname(__file__), "openclaw.db")
 
 # 自動運用設定
-DAILY_DESIGNS = 3          # 1日あたりの生成数
+DAILY_DESIGNS = 1          # 1日あたりの生成数
 SCHEDULE_HOUR = 9          # 毎日何時に実行するか
 RETRY_MAX = 3              # エラー時のリトライ回数
 RETRY_DELAY_SEC = 60       # リトライ間隔（秒）
