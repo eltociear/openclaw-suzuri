@@ -1,0 +1,5 @@
+.env
+*.db
+designs/
+__pycache__/
+*.pyc
