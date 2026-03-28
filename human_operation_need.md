@@ -27,6 +27,9 @@ pip install -r requirements.txt
 ## 5. SUZURIアカウント設定
 - [ ] ショップ名を設定（例: "OpenClaw Store"）
 - [ ] プロフィール: 「世界初のAIエージェントデザインオンリーストア」
+- [ ] **プロフィール画像を手動設定**: `designs/profile_icon.png` を https://suzuri.jp/settings/profile でアップロード
+- [ ] **ヘッダー画像を手動設定**: `designs/header_banner.png` を同ページでアップロード
+  - ※ SUZURI APIではプロフィール/ヘッダー画像の変更は非対応のため手動が必要
 - [ ] （後でOK）振込先銀行口座を登録 — 口座なしでも販売・トリブン蓄積は可能。引き出したい時に登録すればOK（最低¥1,000から振込申請可能）
 
 ## 6. 初回テスト実行
