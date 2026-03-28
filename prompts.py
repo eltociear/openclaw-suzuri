@@ -1,25 +1,34 @@
 """OpenClaw デザインプロンプト管理
 
-OpenClaw = ロブスターを被った猫（Claw = ロブスターの爪）
+OpenClaw = ロブスターの着ぐるみを着た白い子猫
 全デザインがこのキャラクターを軸に展開される
 """
 import random
 
-# OpenClawキャラクター定義
-OPENCLAW_BASE = "a cute cat wearing a lobster costume on its head, lobster claw hat, cat with lobster headgear"
+# OpenClawキャラクター定義（参考画像のテイストに完全準拠）
+OPENCLAW_BASE = (
+    "an adorable fluffy white kitten wearing a full red lobster costume, "
+    "lobster shell covering its body, big lobster claws as hands, "
+    "lobster eyes on stalks on top of the head, lobster tail behind, "
+    "the kitten has huge round brown eyes, tiny pink nose, soft white fur, "
+    "chibi proportions, round chubby body, sitting cutely, "
+    "digital painting, smooth rendering, 3D-like shading, "
+    "clean white background, t-shirt print design, centered composition, "
+    "high detail, professional illustration"
+)
 
-# スタイルテンプレート（{character}にOpenClaw猫が入る）
+# スタイルバリエーション（全てベースのテイストを維持しつつ微変化）
 TEMPLATES = [
-    "{character}, minimalist vector art, clean lines, white background, t-shirt print design, high quality illustration",
-    "{character}, cute kawaii style, pastel colors, simple flat design, sticker style, transparent background, adorable",
-    "{character}, retro vintage poster style, bold typography, screen print aesthetic, limited color palette",
-    "{character}, watercolor painting style, artistic splash, soft colors, creative composition",
-    "{character}, japanese ukiyo-e inspired illustration, modern twist, traditional meets contemporary",
-    "{character}, neon glow cyberpunk aesthetic, dark background, vivid colors, futuristic",
-    "{character}, hand drawn ink illustration, detailed linework, monochrome with red accent color",
-    "{character}, pop art style, bold colors, halftone dots, comic book aesthetic, eye-catching",
-    "{character}, pixel art retro gaming style, 8-bit aesthetic, nostalgic, colorful sprites",
-    "{character}, chibi anime style, big eyes, small body, super cute, expressive",
+    "{character}, front facing, looking at viewer with innocent eyes",
+    "{character}, slight head tilt, curious expression, one paw raised",
+    "{character}, happy smile, eyes sparkling, playful pose",
+    "{character}, sleepy expression, half-closed eyes, cozy feeling",
+    "{character}, surprised expression, wide eyes, mouth slightly open",
+    "{character}, winking, cheerful, one eye closed playfully",
+    "{character}, determined expression, clenching lobster claws, confident pose",
+    "{character}, shy expression, blushing cheeks, looking down cutely",
+    "{character}, excited expression, both claws raised up, celebrating",
+    "{character}, peaceful expression, eyes gently closed, serene smile",
 ]
 
 # シチュエーション（OpenClaw猫が何をしているか）
@@ -29,60 +38,60 @@ SITUATIONS = {
         "sleeping curled up",
         "stretching and yawning",
         "playing with yarn",
-        "drinking coffee at a cafe",
-        "reading a book",
-        "taking a selfie",
-        "riding a bicycle",
-        "cooking in a kitchen",
-        "working at a computer",
+        "drinking coffee from a tiny cup",
+        "reading a small book",
+        "taking a selfie with phone",
+        "riding a tiny bicycle",
+        "wearing a chef hat and cooking",
+        "sitting at a tiny computer",
     ],
     "adventure": [
         "surfing on a big wave",
-        "exploring outer space in a rocket",
-        "climbing a mountain peak",
-        "diving underwater with fish",
-        "flying with balloons",
-        "skateboarding in the city",
-        "camping under the stars",
-        "sailing on a tiny boat",
+        "floating in outer space with stars",
+        "standing on a mountain peak with flag",
+        "diving underwater with tropical fish",
+        "flying with colorful balloons",
         "riding a skateboard",
-        "parachuting from the sky",
+        "camping with a tiny tent",
+        "sailing on a paper boat",
+        "riding on a rocket",
+        "parachuting with a tiny parachute",
     ],
     "seasonal": [
-        "under cherry blossoms in spring",
-        "at the beach in summer with sunglasses",
-        "surrounded by autumn leaves",
-        "playing in the snow in winter",
-        "watching fireworks at a festival",
-        "trick or treating on Halloween",
-        "opening Christmas presents",
-        "celebrating New Year with mochi",
-        "enjoying hanami picnic",
-        "holding an umbrella in the rain",
+        "under cherry blossom petals falling",
+        "at the beach wearing sunglasses",
+        "surrounded by falling autumn leaves",
+        "playing in fluffy snow",
+        "watching colorful fireworks",
+        "wearing a tiny Halloween costume",
+        "next to a Christmas tree with presents",
+        "eating mochi for New Year",
+        "having a hanami picnic with dango",
+        "holding a tiny umbrella in rain",
     ],
     "japanese_culture": [
-        "eating ramen at a street stall",
-        "sitting in an onsen hot spring",
-        "wearing a kimono",
-        "practicing zen meditation",
-        "at a sushi conveyor belt",
-        "at a matsuri festival with lanterns",
-        "in front of Mount Fuji",
-        "at a torii gate shrine",
-        "making takoyaki",
-        "riding the shinkansen",
+        "eating ramen from a big bowl",
+        "relaxing in an onsen hot spring",
+        "wearing a cute mini kimono",
+        "meditating peacefully in zen style",
+        "sitting at a sushi conveyor belt",
+        "holding a festival lantern",
+        "posing in front of Mount Fuji",
+        "standing at a red torii gate",
+        "making takoyaki with a pick",
+        "riding a tiny shinkansen",
     ],
     "funny": [
-        "pretending to be a DJ at turntables",
-        "lifting tiny weights at a gym",
-        "as a sushi chef with a knife",
-        "conducting an orchestra",
-        "painting a self-portrait",
-        "winning a trophy proudly",
-        "dressed as a superhero flying",
-        "meditating and floating",
-        "boxing with lobster claws",
-        "doing karate with lobster claws as weapons",
+        "pretending to be a DJ with turntables",
+        "lifting tiny dumbbells at a gym",
+        "wearing a sushi chef headband with knife",
+        "conducting an orchestra with a baton",
+        "painting a self-portrait on canvas",
+        "holding a golden trophy proudly",
+        "wearing a tiny superhero cape flying",
+        "floating in meditation pose with sparkles",
+        "boxing pose with lobster claws ready",
+        "doing karate kick with lobster claws",
     ],
 }
 
@@ -110,7 +119,6 @@ def random_prompt() -> tuple[str, str, str]:
 
     Returns:
         (rendered_prompt, situation, raw_template_str) のタプル
-        raw_template_str は再現性のために返却（通常は使用しない）
     """
     situation = random.choice(get_all_situations())
     template = random.choice(TEMPLATES)
@@ -128,5 +136,6 @@ NEGATIVE_PROMPT = (
     "malformed limbs, missing arms, missing legs, "
     "extra arms, extra legs, fused fingers, too many fingers, "
     "long neck, username, error, worst quality, "
-    "realistic human, photograph"
+    "realistic human, photograph, dark background, "
+    "complex background, busy background, multiple characters"
 )

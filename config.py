@@ -27,11 +27,11 @@ OUTPUT_DIR = os.path.join(os.path.dirname(__file__), "designs")
 # ※実際のIDはSUZURI APIの GET /items で確認して更新すること
 SUZURI_ITEM_IDS = {
     "tshirt": 1,
-    "hoodie": 7,
-    "tote_bag": 18,
-    "mug": 13,
-    "sticker": 17,
-    "phone_case": 28,
+    "hoodie": 9,
+    "tote_bag": 2,
+    "mug": 3,
+    "sticker": 11,
+    "phone_case": 4,
 }
 
 # アイテム別画像サイズ (幅, 高さ)
