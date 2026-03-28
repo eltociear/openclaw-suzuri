@@ -1,59 +1,62 @@
 # 人間の対応が必要な作業（これだけやれば後は全自動）
 
 ## 0. APIトークン再発行（緊急）
-- [ ] **Hugging Face トークン再発行**: 旧トークンが期限切れ。https://huggingface.co/settings/tokens で新しいトークンを作成し `.env` を更新
-- [ ] **SUZURI APIトークン再確認**: 必要に応じて再発行し `.env` を更新
+- [x] **Hugging Face トークン再発行**: 新しいトークンを作成し `.env` を更新
+- [x] **SUZURI APIトークン再発行**: 再発行し `.env` を更新
 
-## 1. APIトークン取得（10分）
-- [x] **SUZURI APIトークン**: https://suzuri.jp/developer/apps でアプリ登録 → アクセストークン取得
-- [x] **Hugging Face トークン**: https://huggingface.co/settings/tokens で取得（無料）
+## 1. GitHub Codespacesで起動
+- [ ] https://github.com/eltociear/openclaw-suzuri で「Code」→「Codespaces」→「Create codespace on main」
+- [ ] Codespace起動後、Secrets設定で `SUZURI_TOKEN` と `HF_TOKEN` を登録
+  - Settings → Codespaces → Secrets → New secret
 
-## 2. 設定ファイル作成（1分）
-- [ ] `.env.example` を `.env` にコピーしてトークンを記入
+## 2. OpenClawインストール（Codespace内で実行）
 ```bash
-cp .env.example .env
-# .env を編集してトークンを記入
+npm install -g openclaw
+openclaw init
 ```
 
-## 3. 依存パッケージインストール（1分）
+## 3. スキル登録
 ```bash
-pip install -r requirements.txt
+# このリポジトリをOpenClawスキルとして登録
+cp -r . ~/.openclaw/skills/suzuri-designer/
 ```
 
-## 4. SUZURIアイテムID確認（5分）
-- [ ] `python cli.py items` を実行してアイテムIDを確認
-- [ ] `config.py` の `SUZURI_ITEM_IDS` を実際のIDに更新
-
-## 5. SUZURIアカウント設定
-- [ ] ショップ名を設定（例: "OpenClaw Store"）
-- [ ] プロフィール: 「世界初のAIエージェントデザインオンリーストア」
-- [ ] **プロフィール画像を手動設定**: `designs/profile_icon.png` を https://suzuri.jp/settings/profile でアップロード
-- [ ] **ヘッダー画像を手動設定**: `designs/header_banner.png` を同ページでアップロード
-  - ※ SUZURI APIではプロフィール/ヘッダー画像の変更は非対応のため手動が必要
-- [ ] （後でOK）振込先銀行口座を登録 — 口座なしでも販売・トリブン蓄積は可能。引き出したい時に登録すればOK（最低¥1,000から振込申請可能）
-
-## 6. 初回テスト実行
-```bash
-# ローカル生成のみ（SUZURIに投稿しない）
-python pipeline.py "drinking coffee" --no-upload
-
-# SUZURI投稿テスト
-python pipeline.py "drinking coffee"
+## 4. Heartbeat設定（自動運用）
+`~/.openclaw/openclaw.json` に以下を追加:
+```json
+{
+  "agents": {
+    "defaults": {
+      "heartbeat": {
+        "every": "8h",
+        "target": "line",
+        "activeHours": {
+          "start": "09:00",
+          "end": "22:00",
+          "timezone": "Asia/Tokyo"
+        }
+      }
+    }
+  }
+}
 ```
 
-## 7. cron登録で完全自動化（これで放置OK）
-```bash
-crontab -e
-# 以下を追加（毎日9時に自動実行）:
-0 9 * * * cd /Users/ashimine_ikkou_bp/workspace/openclaw-suzuri && /usr/bin/python3 autorun.py >> openclaw.log 2>&1
-```
+## 5. LINE連携（オプション）
+- [ ] OpenClawのLINE Messaging API連携を設定
+  - LINE Developers Console でチャネル作成: https://developers.line.biz/
+  - Channel Access Token と Channel Secret を取得
+  - `~/.openclaw/openclaw.json` にLINE設定を追加
+- [ ] LINEからショップ管理・デザイン生成を操作可能に
+
+## 6. SUZURIアカウント設定（Web UIで手動）
+- [ ] **プロフィール画像**: `designs/profile_icon.png` を https://suzuri.jp/settings/profile でアップロード
+- [ ] **ヘッダー画像**: `designs/header_banner.png` を同ページでアップロード
+- [ ] （後でOK）振込先銀行口座を登録
 
 ---
 
 ## ここまでやれば以降は完全自動
-- 毎日9時に `autorun.py` が起動
-- ランダムなシチュエーションのOpenClaw（ロブスター猫）デザインを3つ生成
-- 各デザインをTシャツ・パーカー・トートバッグ・マグ・ステッカー・スマホケースとして自動公開
-- ログは `openclaw.log` に記録
+- OpenClawのHeartbeatが8時間ごとに自動でデザイン生成+SUZURI公開
+- LINEから「新しいデザイン作って」「ショップの状況は？」等で対話操作も可能
 - トリブン（利益）は自動設定済み — 売れたらSUZURIアカウントに蓄積される
 - 銀行口座は後から登録でOK（¥1,000以上貯まったら振込申請可能）
