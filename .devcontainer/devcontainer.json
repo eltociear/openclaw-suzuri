@@ -1,7 +1,12 @@
 {
   "name": "OpenClaw SUZURI Designer",
   "image": "mcr.microsoft.com/devcontainers/python:3.11",
-  "postCreateCommand": "pip install -r requirements.txt && pip install openclaw-sdk && npm install -g openclaw",
+  "postCreateCommand": "pip install -r requirements.txt && pip install openclaw-sdk && npm install -g openclaw && mkdir -p /home/vscode/.openclaw",
+  "remoteUser": "vscode",
+  "containerEnv": {
+    "HOME": "/home/vscode",
+    "OPENCLAW_HOME": "/home/vscode/.openclaw"
+  },
   "features": {
     "ghcr.io/devcontainers/features/node:1": {}
   },
