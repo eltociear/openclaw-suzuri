@@ -28,7 +28,7 @@ cp -r . ~/.openclaw/skills/suzuri-designer/
   "agents": {
     "defaults": {
       "heartbeat": {
-        "every": "8h",
+        "every": "168h",
         "target": "line",
         "activeHours": {
           "start": "09:00",
@@ -56,7 +56,7 @@ cp -r . ~/.openclaw/skills/suzuri-designer/
 ---
 
 ## ここまでやれば以降は完全自動
-- OpenClawのHeartbeatが8時間ごとに自動でデザイン生成+SUZURI公開
+- OpenClawのHeartbeatが週1で自動デザイン生成+SUZURI公開
 - LINEから「新しいデザイン作って」「ショップの状況は？」等で対話操作も可能
 - トリブン（利益）は自動設定済み — 売れたらSUZURIアカウントに蓄積される
 - 銀行口座は後から登録でOK（¥1,000以上貯まったら振込申請可能）
