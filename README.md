@@ -1,168 +1,218 @@
-# OpenClaw - AI Agent Design-Only Store on SUZURI
+<p align="center">
+  <img src="assets/showcase.png" width="280" />
+</p>
 
-世界初のAIエージェントデザインオンリーストア。
+<h1 align="center">OpenClaw</h1>
 
-ロブスターを被った猫「OpenClaw」のデザインを自動生成し、SUZURIで販売する完全自動システム。
+<p align="center">
+  <strong>The World's First AI Agent Design-Only Store</strong><br/>
+  AIが勝手にデザインして、勝手に売る。人間は寝てるだけ。
+</p>
 
-## OpenClawとは
+<p align="center">
+  <img src="https://img.shields.io/badge/cost-¥0-brightgreen?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/designs-500+-blue?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/automation-100%25-orange?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/platform-SUZURI-ff69b4?style=for-the-badge" />
+</p>
 
-**OpenClaw = ロブスターを被った猫**（Claw = ロブスターの爪）
+---
 
-50種類のシチュエーション x 10種類のスタイル = **500パターン**のデザインを自動生成。
-毎日自動でSUZURIに商品を公開し、放置で稼ぐ仕組み。
+## What is OpenClaw?
 
-## 仕組み
+**ロブスターを被った猫。それがOpenClaw。**
+
+> *Claw = ロブスターの爪*
+
+AIエージェントが毎日自動で「ロブスター猫」のデザインを生成し、SUZURIに商品として公開する。Tシャツ、パーカー、マグカップ、ステッカー... **人間の操作ゼロ**で販売が回り続ける。
 
 ```
-cron (毎日自動実行)
-  -> autorun.py
-    -> ランダムにシチュエーション選択
-    -> Hugging Face API で画像生成（無料）
-    -> Pillow でアイテム別にリサイズ
-    -> SUZURI API で全商品を公開状態で一括作成
-    -> x3 デザイン/日
-    -> 売れたらトリブン（利益）が自動で蓄積
+Setup once. Sleep forever. Get paid.
 ```
 
-### 対応アイテム
+## How It Works
 
-| アイテム | トリブン（利益） | 画像サイズ (px) |
-|---------|---------------|----------------|
-| Tシャツ | ¥400 | 2520 x 2992 |
-| パーカー | ¥600 | 2520 x 2992 |
-| トートバッグ | ¥300 | 1969 x 1969 |
-| マグカップ | ¥300 | 3102 x 1260 |
-| ステッカー | ¥200 | 630 x 630 |
-| スマホケース | ¥500 | 1616 x 2721 |
+```
+                    +------------------+
+                    |   cron (daily)   |
+                    +--------+---------+
+                             |
+                    +--------v---------+
+                    |   autorun.py     |
+                    +--------+---------+
+                             |
+              +--------------+--------------+
+              |                             |
+    +---------v----------+      +-----------v-----------+
+    |  Hugging Face API  |      |   Prompt Engine       |
+    |  (Stable Diffusion)|      |   50 situations       |
+    |  FREE              |      |   x 10 styles         |
+    +---------+----------+      |   = 500 patterns      |
+              |                 +-----------+-----------+
+              |                             |
+              +--------------+--------------+
+                             |
+                    +--------v---------+
+                    |  Pillow Resize   |
+                    |  6 item sizes    |
+                    +--------+---------+
+                             |
+                    +--------v---------+
+                    |   SUZURI API     |
+                    |  Auto-publish    |
+                    |  All items       |
+                    +--------+---------+
+                             |
+                    +--------v---------+
+                    |   $$$ Profit     |
+                    +------------------+
+```
 
-### デザインカテゴリ
+## Key Features
 
-| カテゴリ | 例 |
-|---------|-----|
-| daily_life | コーヒーを飲む、本を読む、PC作業 |
-| adventure | サーフィン、宇宙旅行、登山 |
-| seasonal | 桜の下、花火大会、クリスマス |
-| japanese_culture | ラーメン屋台、温泉、着物姿 |
-| funny | DJ、空手（ロブスターの爪で）、ボクシング |
+| Feature | Description |
+|---------|-------------|
+| **Fully Autonomous** | cron登録後、人間の操作は一切不要 |
+| **Zero Cost** | Hugging Face無料枠 + SUZURI手数料なし = **運用費¥0** |
+| **500+ Designs** | 50シチュエーション x 10スタイル、組み合わせは無限大 |
+| **6 Products per Design** | 1つのデザインからTシャツ〜スマホケースまで一括公開 |
+| **Auto Retry** | API障害時も自動リトライで止まらない |
+| **Analytics** | 売上・パフォーマンスを自動トラッキング |
 
-## セットアップ
+## Design Showcase
 
-### 1. APIトークン取得
+### 5 Categories x Infinite Possibilities
 
-- **SUZURI**: https://suzuri.jp/developer/apps でアプリ登録 -> アクセストークン取得
-- **Hugging Face**: https://huggingface.co/settings/tokens で取得（無料）
+```
+  daily_life         adventure         seasonal
+  ──────────         ─────────         ────────
+  Coffee time        Surfing           Cherry blossoms
+  Reading books      Space travel      Fireworks fest
+  PC working         Mountain climb    Christmas
+  Yoga               Skydiving         Snow play
 
-### 2. インストール
+  japanese_culture   funny
+  ────────────────   ─────
+  Ramen stall        DJ cat
+  Onsen bath         Karate (with claws!)
+  Kimono style       Boxing lobster
+  Sushi chef         Floating meditation
+```
+
+### 10 Art Styles
+
+| # | Style | Vibe |
+|---|-------|------|
+| 0 | Minimalist Vector | Clean, modern |
+| 1 | Kawaii | Cute, pastel |
+| 2 | Retro Vintage | Bold, screen print |
+| 3 | Watercolor | Soft, artistic |
+| 4 | Ukiyo-e | Japanese traditional x modern |
+| 5 | Cyberpunk Neon | Dark, vivid |
+| 6 | Ink Sketch | Hand-drawn, detailed |
+| 7 | Pop Art | Bold, comic book |
+| 8 | Pixel Art | 8-bit, nostalgic |
+| 9 | Chibi Anime | Big eyes, super cute |
+
+## Revenue Model
+
+```
+  販売価格 = 原価（SUZURI負担） + トリブン（あなたの利益）
+  在庫リスク = ゼロ（受注生産）
+  手数料 = ゼロ
+```
+
+| Item | Your Profit | Price Range |
+|------|------------|-------------|
+| T-shirt | **¥400** | ~¥3,200 |
+| Hoodie | **¥600** | ~¥4,500 |
+| Tote Bag | **¥300** | ~¥2,000 |
+| Mug | **¥300** | ~¥2,100 |
+| Sticker | **¥200** | ~¥600 |
+| Phone Case | **¥500** | ~¥2,500 |
+
+> 1日3デザイン x 6アイテム = **18商品/日** が自動で店頭に並ぶ
+
+## Quick Start
 
 ```bash
+# Clone
+git clone https://github.com/eltociear/openclaw-suzuri.git
+cd openclaw-suzuri
+
+# Install
 pip install -r requirements.txt
+
+# Configure
 cp .env.example .env
-# .env を編集してトークンを記入
+# Edit .env with your API tokens:
+#   SUZURI_TOKEN  -> https://suzuri.jp/developer/apps
+#   HF_TOKEN      -> https://huggingface.co/settings/tokens (FREE)
+
+# Generate your first design
+python3 pipeline.py "drinking coffee at a cafe" --no-upload
+
+# Go fully autonomous
+python3 autorun.py
 ```
 
-### 3. SUZURIアイテムID確認
-
-```bash
-python3 cli.py items
-```
-
-表示されたIDを `config.py` の `SUZURI_ITEM_IDS` に反映する。
-
-### 4. SUZURIアカウント設定
-
-- ショップ名を設定（例: "OpenClaw Store"）
-- プロフィールを記入
-- 銀行口座は後から登録でOK（口座なしでも販売・トリブン蓄積は可能。¥1,000以上貯まったら振込申請可能）
-
-### 5. テスト実行
-
-```bash
-# ローカル生成のみ（SUZURIに投稿しない）
-python3 pipeline.py "drinking coffee" --no-upload
-
-# SUZURI投稿テスト
-python3 pipeline.py "drinking coffee"
-```
-
-### 6. 完全自動化（cron登録）
+### Set & Forget (cron)
 
 ```bash
 crontab -e
-# 以下を追加（毎日9時に自動実行）:
-0 9 * * * cd /path/to/openclaw-suzuri && /usr/bin/python3 autorun.py >> openclaw.log 2>&1
+# Add this line (runs daily at 9:00 AM):
+0 9 * * * cd /path/to/openclaw-suzuri && /usr/bin/python3 autorun.py
 ```
 
-**これで放置OK。以降は完全自動。**
+**Done. Go to sleep.**
 
-## CLI コマンド
+## CLI
 
 ```bash
-# デザイン生成（ランダム）
-python3 cli.py generate
-
-# シチュエーション指定
-python3 cli.py generate "eating ramen at a street stall"
-
-# スタイル指定（0=ミニマル, 1=kawaii, 9=chibi 等）
-python3 cli.py generate "eating ramen" --style 1
-
-# 日次バッチ（3デザイン）
-python3 cli.py batch --count 3
-
-# カテゴリ集中生成
-python3 cli.py category --category funny
-
-# 統計レポート
-python3 cli.py stats
-
-# シチュエーション一覧
-python3 cli.py situations
-
-# SUZURIアイテム一覧
-python3 cli.py items
+python3 cli.py generate                              # Random design
+python3 cli.py generate "eating ramen" --style 1      # Kawaii ramen cat
+python3 cli.py batch --count 5                        # Batch: 5 designs
+python3 cli.py category --category funny              # All funny situations
+python3 cli.py stats                                  # Analytics report
+python3 cli.py situations                             # List all situations
 ```
 
-## プロジェクト構成
+## Architecture
 
 ```
 openclaw-suzuri/
-├── .env                  # APIトークン（Git管理外）
-├── .env.example          # 環境変数テンプレート
-├── .gitignore
-├── README.md
-├── TODO.md               # タスク管理
-├── human_operation_need.md # 人間対応タスク一覧
-├── requirements.txt      # 依存パッケージ
-├── config.py             # 設定（API, サイズ, 価格, 自動運用）
-├── suzuri_client.py      # SUZURI APIクライアント
-├── image_generator.py    # Hugging Face 画像生成 + リサイズ
-├── prompts.py            # プロンプト管理（10スタイル x 50シチュエーション）
-├── db.py                 # SQLite データ管理
-├── pipeline.py           # 生成 -> アップロード パイプライン
-├── scheduler.py          # 日次バッチ / カテゴリ集中生成
-├── analytics.py          # 売上・パフォーマンス分析
-├── autorun.py            # 完全自動運用スクリプト（cron用）
-└── cli.py                # メインCLI
+├── autorun.py            # Autonomous entry point (cron target)
+├── pipeline.py           # Generate -> Resize -> Upload -> Publish
+├── image_generator.py    # Hugging Face SDXL image generation
+├── suzuri_client.py      # SUZURI API v1 client
+├── prompts.py            # 500+ prompt combinations
+├── scheduler.py          # Daily batch / category campaigns
+├── analytics.py          # Performance tracking
+├── db.py                 # SQLite design & product management
+├── config.py             # All configuration in one place
+└── cli.py                # CLI interface
 ```
 
-## 技術スタック
+## Tech Stack
 
-- **Python 3.9+**
-- **Hugging Face Inference API** — Stable Diffusion XLによる画像生成（無料）
-- **SUZURI API v1** — 商品アップロード・公開
-- **Pillow** — 画像リサイズ・透過処理
-- **SQLite** — デザイン・商品データ管理
+| Layer | Technology | Cost |
+|-------|-----------|------|
+| Image Generation | Hugging Face Inference API (SDXL) | FREE |
+| Image Processing | Pillow | FREE |
+| Marketplace | SUZURI API v1 | FREE |
+| Database | SQLite | FREE |
+| Scheduling | cron | FREE |
+| Language | Python 3.9+ | FREE |
 
-## 運用コスト
+**Total operating cost: ¥0**
 
-**¥0**（全て無料枠で運用可能）
-
-| サービス | 費用 |
-|---------|------|
-| SUZURI | 無料（手数料なし） |
-| Hugging Face API | 無料枠（1日数枚なら十分） |
-| cron | OS標準機能 |
-
-## ライセンス
+## License
 
 Private
+
+---
+
+<p align="center">
+  <strong>Built with AI, for AI, by AI.</strong><br/>
+  <sub>The cat wears the lobster. The lobster wears the crown.</sub>
+</p>
